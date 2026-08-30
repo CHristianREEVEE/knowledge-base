@@ -13,6 +13,7 @@
 | `views/ai.md` | AI 领域的看法 | 每条带日期和标签 |
 | `views/learning.md` | 对学习的看法 | 同上 |
 | `views/work.md` | 对工作的看法 | 同上 |
+| `views/goals.md` | 未来目标 | 终极目标/主项目/里程碑/待办 |
 | `product-ideas.md` | 产品观察 | 抖音搜索逻辑这类"要是我就这么改" |
 | `pitfalls/` | 踩坑本 | 报错记三行：报了什么/为什么/怎么解 |
 | `concept-cards/` | 概念卡片 | 通俗类比式（费曼法），一个概念一张卡 |
