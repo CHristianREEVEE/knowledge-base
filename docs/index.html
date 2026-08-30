@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="description" content="南浊的个人知识库——观点、观察、踩坑，进系统的才算数">
+<meta name="theme-color" content="#0a0d14">
+<title>南浊 · 知识库</title>
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230a0d14'/%3E%3Ctext x='32' y='45' font-size='36' text-anchor='middle' fill='%23e8ecf4' font-family='sans-serif' font-weight='bold'%3E知%3C/text%3E%3C/svg%3E">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  :root {
+    --bg:#0a0d14;
+    --card:rgba(255,255,255,.045);
+    --card-hover:rgba(255,255,255,.075);
+    --border:rgba(255,255,255,.09);
+    --text:#e8ecf4;
+    --dim:#8b93a7;
+    --indigo:#6366f1;
+    --violet:#a78bfa;
+    --cyan:#22d3ee;
+    --amber:#fbbf24;
+    --rose:#fb7185;
+    --slate:#94a3b8;
+    font-size:16px;
+  }
+  html { scrollbar-color:#2a3142 transparent; }
+  body {
+    background:var(--bg);
+    color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Noto Sans SC","Microsoft YaHei",sans-serif;
+    line-height:1.7;
+    min-height:100vh;
+    overflow-x:hidden;
+  }
+  /* ambient glow */
+  .glow { position:fixed; border-radius:50%; filter:blur(120px); pointer-events:none; z-index:0; }
+  .glow.g1 { width:420px; height:420px; top:-120px; left:-100px; background:rgba(99,102,241,.16); }
+  .glow.g2 { width:380px; height:380px; top:30%; right:-140px; background:rgba(34,211,238,.10); }
+
+  .wrap { position:relative; z-index:1; max-width:860px; margin:0 auto; padding:0 20px 80px; }
+
+  /* hero */
+  header { padding:64px 0 36px; }
+  .kicker {
+    display:inline-flex; align-items:center; gap:8px;
+    font-size:.78rem; letter-spacing:.12em; color:var(--dim);
+    border:1px solid var(--border); border-radius:999px;
+    padding:5px 14px; margin-bottom:18px;
+    background:var(--card); backdrop-filter:blur(12px);
+  }
+  .kicker .dot { width:7px; height:7px; border-radius:50%; background:var(--cyan); box-shadow:0 0 8px var(--cyan); }
+  h1 {
+    font-size:clamp(1.9rem,5.5vw,2.8rem); font-weight:800; letter-spacing:-.02em;
+    background:linear-gradient(120deg,#e8ecf4 30%,var(--indigo) 70%,var(--cyan));
+    -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
+  }
+  .sub { color:var(--dim); margin-top:10px; font-size:.95rem; max-width:560px; }
+  .sub b { color:var(--text); font-weight:600; }
+  .stats { display:flex; gap:26px; margin-top:26px; flex-wrap:wrap; }
+  .stat { display:flex; flex-direction:column; }
+  .stat .n { font-size:1.5rem; font-weight:800; font-variant-numeric:tabular-nums; }
+  .stat .l { font-size:.75rem; color:var(--dim); letter-spacing:.06em; }
+
+  /* search */
+  .searchbox { position:relative; margin:26px 0 18px; }
+  .searchbox input {
+    width:100%; padding:14px 18px 14px 46px;
+    background:var(--card); border:1px solid var(--border); border-radius:14px;
+    color:var(--text); font-size:1rem; outline:none;
+    backdrop-filter:blur(12px); transition:border-color .2s, background .2s;
+  }
+  .searchbox input:focus { border-color:rgba(99,102,241,.55); background:var(--card-hover); }
+  .searchbox input::placeholder { color:#5b6373; }
+  .searchbox svg { position:absolute; left:16px; top:50%; transform:translateY(-50%); width:17px; height:17px; stroke:var(--dim); }
+
+  /* chips */
+  .chips { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:26px; }
+  .chip {
+    padding:7px 15px; border-radius:999px; font-size:.85rem; color:var(--dim);
+    background:var(--card); border:1px solid var(--border); cursor:pointer;
+    transition:all .18s; backdrop-filter:blur(12px); user-select:none;
+    display:inline-flex; align-items:center; gap:6px;
+  }
+  .chip:hover { color:var(--text); background:var(--card-hover); }
+  .chip.active { color:#fff; border-color:transparent; background:linear-gradient(120deg,var(--indigo),#4f46e5); box-shadow:0 4px 18px rgba(99,102,241,.35); }
+  .chip .cnt { font-size:.72rem; opacity:.75; font-variant-numeric:tabular-nums; }
+
+  /* entry cards */
+  .entries { display:flex; flex-direction:column; gap:14px; }
+  .entry {
+    background:var(--card); border:1px solid var(--border); border-radius:16px;
+    padding:20px 22px; backdrop-filter:blur(14px);
+    transition:transform .18s, background .18s, border-color .18s;
+    position:relative; overflow:hidden;
+  }
+  .entry::before {
+    content:""; position:absolute; left:0; top:0; bottom:0; width:3px;
+    background:var(--cat-color,var(--indigo));
+  }
+  .entry:hover { background:var(--card-hover); transform:translateY(-2px); }
+  .entry .meta { display:flex; align-items:center; gap:10px; margin-bottom:8px; flex-wrap:wrap; }
+  .entry .cat {
+    font-size:.72rem; font-weight:700; letter-spacing:.05em;
+    color:var(--cat-color,var(--indigo));
+    background:color-mix(in srgb,var(--cat-color,var(--indigo)) 14%,transparent);
+    padding:2.5px 10px; border-radius:6px;
+  }
+  .entry .date { font-size:.75rem; color:var(--dim); font-variant-numeric:tabular-nums; }
+  .entry h2 { font-size:1.08rem; font-weight:700; letter-spacing:-.01em; margin-bottom:6px; }
+  .entry .body { color:#b8bfce; font-size:.9rem; white-space:pre-line; }
+  .entry .tags { margin-top:12px; display:flex; gap:6px; flex-wrap:wrap; }
+  .entry .tag { font-size:.72rem; color:var(--dim); background:rgba(255,255,255,.05); padding:2px 9px; border-radius:5px; }
+  .entry .body b { color:var(--text); }
+
+  .empty {
+    text-align:center; color:var(--dim); padding:60px 0; font-size:.92rem;
+    background:var(--card); border:1px dashed var(--border); border-radius:16px;
+  }
+
+  footer {
+    margin-top:56px; padding-top:22px; border-top:1px solid var(--border);
+    color:#5b6373; font-size:.78rem; text-align:center;
+  }
+  footer a { color:var(--dim); text-decoration:none; border-bottom:1px dotted #5b6373; }
+
+  @media (max-width:560px) {
+    header { padding:44px 0 28px; }
+    .stats { gap:18px; }
+    .entry { padding:16px 16px 16px 19px; }
+  }
+</style>
+</head>
+<body>
+<div class="glow g1"></div>
+<div class="glow g2"></div>
+<div class="wrap">
+
+  <header>
+    <div class="kicker"><span class="dot"></span>PERSONAL KNOWLEDGE BASE</div>
+    <h1>南浊 · 知识库</h1>
+    <p class="sub">观点、观察、踩坑——<b>进系统的才算数</b>。收藏不等于知识，发到备忘录的东西等于死存储；这里只收经过自己加工的。</p>
+    <div class="stats">
+      <div class="stat"><span class="n" id="stEntries">0</span><span class="l">条目</span></div>
+      <div class="stat"><span class="n" id="stCats">0</span><span class="l">分类</span></div>
+      <div class="stat"><span class="n" id="stUpdated">—</span><span class="l">最近更新</span></div>
+    </div>
+  </header>
+
+  <div class="searchbox">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <input id="q" type="search" placeholder="搜索标题、内容或标签…" autocomplete="off">
+  </div>
+
+  <div class="chips" id="chips"></div>
+  <div class="entries" id="list"></div>
+
+  <footer>
+    数据即资产 · 由 <a href="https://github.com/CHristianREEVEE/knowledge-base" target="_blank" rel="noopener">GitHub 仓库</a>驱动 · Zero 管理 · 条目与 markdown 实时同步
+  </footer>
+</div>
+
+<script>
+const CATS = {
+  ai:      { name:'AI 看法',    color:'#6366f1' },
+  learning:{ name:'学习',        color:'#a78bfa' },
+  work:    { name:'工作',        color:'#fbbf24' },
+  product: { name:'产品观察',    color:'#22d3ee' },
+  pitfall: { name:'踩坑本',      color:'#fb7185' },
+  concept: { name:'概念卡片',    color:'#34d399' },
+  weekly:  { name:'周复盘',      color:'#f472b6' },
+  inbox:   { name:'收件箱',      color:'#94a3b8' },
+};
+
+const ENTRIES = [
+  { cat:'product', date:'2026-08-30', title:'抖音搜索找不到"那条视频"',
+    body:'现象：想找刷过的某个具体视频，抖音搜索做不到详细匹配，只能靠标题/话题碰运气。评论区到处是"求原视频出处"——不是我一个人有这需求。\n本质：视频的索引粒度问题。抖音按标题、话题、流量分发索引，而"我看过那条"是内容级记忆（画面/台词/场景），粒度低于索引粒度就永远搜不到。\n机会：①"看过的视频"时间轴搜索 ②AI 语义搜视频（用自然语言描述画面找片）。谁先做出来谁吃掉这波刚需。',
+    tags:['抖音','搜索','产品痛点'] },
+  { cat:'ai', date:'2026-08-30', title:'个人 AI ≠ 自己训模型',
+    body:'从 0 到 1 训大模型对个人不现实（Kimi K3 训练成本 2000 万美元级，生产部署还要 2000 多万人民币的 64 卡超节点）；单纯蒸馏别人的模型又没意义。Cursor、Manus、OpenClaw 证明：模型能力已经是大宗商品，价值在编排层 + 数据飞轮 + 生态。Cursor 起家也只是调 API 的"空壳"，壳做到极致攒够用户编辑数据，才反过来训出自己的补全模型——顺序是反过来的。\n我的路径：知识库 = 记忆层（私有数据，最值钱）；agent-world = 编排层练习；DSH 插件 = 生态卡位。底层模型换谁都无所谓，这才是"自己的 AI"。',
+    tags:['AI','架构','路线'] },
+  { cat:'work', date:'2026-08-30', title:'HR 筛的是"落地能力+转化率"，不是技术栈',
+    body:'找工作的现实：初级岗的简历筛选逻辑是"你做成过什么"，不是"你学过什么"。项目要有真实使用者和持续迭代痕迹（工作台日均使用、822 地图真按标记走路），面试讲出来的说服力完全不同。',
+    tags:['求职','认知'] },
+  { cat:'learning', date:'2026-08-30', title:'用考试当里程碑，不是当目的',
+    body:'证书是检验学习成果的手段：Python 二级 → PCAP → PCPP1 三道关卡。真正的理解标准是费曼式概念卡片——能用通俗类比讲出来才算懂（AZ = 机房、瓦片 = 拼图、COS = 网盘）。',
+    tags:['学习方法','里程碑'] },
+  { cat:'inbox', date:'2026-08-30', title:'转转上看二手 MacBook Neo',
+    body:'官方验机标、电池循环 <300、确认 8G/256G 配置，预算 3300-3800。',
+    tags:['待办','数码'] },
+];
+
+/* ---- render ---- */
+const chipsEl = document.getElementById('chips');
+const listEl  = document.getElementById('list');
+const qEl     = document.getElementById('q');
+let activeCat = 'all', query = '';
+
+function countBy(cat) { return ENTRIES.filter(e => e.cat === cat).length; }
+
+function renderChips() {
+  const items = [{ key:'all', name:'全部', color:'#e8ecf4', cnt:ENTRIES.length }]
+    .concat(Object.keys(CATS).filter(k => countBy(k) > 0).map(k => ({ key:k, name:CATS[k].name, color:CATS[k].color, cnt:countBy(k) })));
+  chipsEl.innerHTML = items.map(i =>
+    `<div class="chip ${i.key===activeCat?'active':''}" data-cat="${i.key}">${i.name}<span class="cnt">${i.cnt}</span></div>`
+  ).join('');
+  chipsEl.querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => {
+    activeCat = c.dataset.cat; renderChips(); renderList();
+  }));
+}
+
+function esc(s){ return s.replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); }
+
+function renderList() {
+  const q = query.trim().toLowerCase();
+  const list = ENTRIES.filter(e =>
+    (activeCat === 'all' || e.cat === activeCat) &&
+    (!q || (e.title + e.body + e.tags.join(' ')).toLowerCase().includes(q))
+  );
+  if (!list.length) {
+    listEl.innerHTML = `<div class="empty">没找到 —— 换个关键词试试，或者这条还没入库</div>`;
+    return;
+  }
+  listEl.innerHTML = list.map(e => {
+    const c = CATS[e.cat];
+    return `<div class="entry" style="--cat-color:${c.color}">
+      <div class="meta"><span class="cat">${c.name}</span><span class="date">${e.date}</span></div>
+      <h2>${esc(e.title)}</h2>
+      <div class="body">${esc(e.body)}</div>
+      <div class="tags">${e.tags.map(t => `<span class="tag">#${esc(t)}</span>`).join('')}</div>
+    </div>`;
+  }).join('');
+}
+
+qEl.addEventListener('input', () => { query = qEl.value; renderList(); });
+
+document.getElementById('stEntries').textContent = ENTRIES.length;
+document.getElementById('stCats').textContent = Object.keys(CATS).filter(k => countBy(k) > 0).length;
+document.getElementById('stUpdated').textContent = ENTRIES.reduce((m,e) => e.date > m ? e.date : m, '0000-00-00').slice(5).replace('-','/');
+renderChips(); renderList();
+</script>
+</body>
+</html>
