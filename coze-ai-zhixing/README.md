@@ -4,6 +4,17 @@
 > 南浊对扣子空间（Coze）的思考、使用见闻与产品判断。
 > 大段 AI 回复（与豆包的对话）单独归档：[doubao-dialogues.md](doubao-dialogues.md)——本文件只收南浊本人的原话。
 
+## 本板块文件导航
+
+| 文件 | 内容 |
+|---|---|
+| [README.md](README.md) | 南浊原话 · 批次一（项目制/多Agent痛点/产品观/天花板/积分） |
+| [thoughts-2.md](thoughts-2.md) | 南浊原话 · 批次二（字节系/卡脖子论/考研/Claude封号/多账号/产品建议） |
+| [doubao-dialogues.md](doubao-dialogues.md) | 豆包对话实录 · 批次一（5 段） |
+| [doubao-dialogues-2.md](doubao-dialogues-2.md) | 豆包对话实录 · 批次二（23 段） |
+| [ai-journey.md](ai-journey.md) | 我的 AI 之路：22 年 GPT 镜像至今的完整使用史 |
+| [../purpose.md](../purpose.md) | 创建新概念知识库初衷（置顶板块） |
+
 ---
 
 ## 2026-08-31 | 新版「项目」是扣子真正的价值
