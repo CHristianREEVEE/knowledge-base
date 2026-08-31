@@ -6,14 +6,30 @@
 
 ## 本板块文件导航
 
+**主题细分板块**（按话题归类，2026-08-31 定稿）：
+
 | 文件 | 内容 |
 |---|---|
-| [README.md](README.md) | 南浊原话 · 批次一（项目制/多Agent痛点/产品观/天花板/积分） |
-| [thoughts-2.md](thoughts-2.md) | 南浊原话 · 批次二（字节系/卡脖子论/考研/Claude封号/多账号/产品建议） |
+| [topics/coze.md](topics/coze.md) | 扣子产品观察与建议（项目制/多Agent痛点/消息体验/优化清单/Codex CLI接入） |
+| [topics/china-ai.md](topics/china-ai.md) | 国内 AI 观察（字节/DeepSeek/千问/智谱/WorkBuddy/美团） |
+| [topics/global-ai.md](topics/global-ai.md) | 国外 AI 观察（OpenAI/Anthropic/Gemini/Codex/中美互抄论） |
+| [topics/philosophy.md](topics/philosophy.md) | AI 思考与心得（迭代论/卡脖子论/长线心态/vibecoding） |
+| [topics/product-ux.md](topics/product-ux.md) | AI 产品通病与体验痛点（撤回/多选/上传/token显示） |
+| [topics/tech-notes.md](topics/tech-notes.md) | 技术笔记（CLI/TUI/GUI、agent微信主动发消息方法） |
+
+**原始归档**（按时间批次，原话与豆包回复分开）：
+
+| 文件 | 内容 |
+|---|---|
+| [README.md](README.md) | 南浊原话 · 批次一（下方正文） |
+| [thoughts-2.md](thoughts-2.md) | 南浊原话 · 批次二 |
 | [doubao-dialogues.md](doubao-dialogues.md) | 豆包对话实录 · 批次一（5 段） |
 | [doubao-dialogues-2.md](doubao-dialogues-2.md) | 豆包对话实录 · 批次二（23 段） |
+| [doubao-dialogues-3.md](doubao-dialogues-3.md) | 豆包对话实录 · 批次三（3 段） |
 | [ai-journey.md](ai-journey.md) | 我的 AI 之路：22 年 GPT 镜像至今的完整使用史 |
 | [../purpose.md](../purpose.md) | 创建新概念知识库初衷（置顶板块） |
+
+> 内容总跨度：2026 年 7 月初 – 8 月底的 AI 见闻、日志与思考。
 
 ---
 
