@@ -112,6 +112,7 @@
   .entry .body { color:#b8bfce; font-size:.9rem; white-space:pre-line; }
   .entry .tags { margin-top:12px; display:flex; gap:6px; flex-wrap:wrap; }
   .entry .tag { font-size:.72rem; color:var(--dim); background:rgba(255,255,255,.05); padding:2px 9px; border-radius:5px; }
+  .entry mark { background:rgba(59,130,246,.38); color:#dbeafe; border-radius:3px; padding:0 2px; }
   .entry .body b { color:var(--text); }
 
   .empty {
@@ -163,6 +164,7 @@
 
 <script>
 const CATS = {
+  purpose: { name:'创建初衷',    color:'#e879f9' },
   ai:      { name:'AI 看法',    color:'#6366f1' },
   goals:   { name:'未来目标',    color:'#f97316' },
   learning:{ name:'学习',        color:'#a78bfa' },
@@ -176,6 +178,51 @@ const CATS = {
 };
 
 const ENTRIES = [
+  { cat:'purpose', date:'2026-08-31', title:'创建新概念知识库初衷',
+    body:'AI 当知识库的好处就是自己容易忘的或者做过的事情都经手 AI。\n尤其 agent 是一个完善的系统，扣子在这方面还是很好的，比起专门的知识库加附属 AI 好一点。',
+    tags:['初衷','知识库','Agent'] },
+  { cat:'coze', date:'2026-08-31', title:'扣子3.0接入Codex CLI：本地Agent统一调度',
+    body:'本地 Claude Code / Codex CLI / OpenClaw 可接入扣子项目空间，和其他 Agent 围绕同一目标协作，网页/桌面/手机远程调度。印证「扣子调度底盘 + Codex 架构 + Claude 模型」的假设。（配图两张待补传）',
+    tags:['扣子','CodexCLI','ClaudeCode'] },
+  { cat:'ai', date:'2026-08-31', title:'中美互抄论与DeepSeek疯狗论',
+    body:'中美互相抄，美国领先一两个季度，没有谁是真全靠自己不借鉴同行的，无非是借鉴多少和嘴硬不硬。DeepSeek 永远用低价格达到同行 80% 水准；fable 和 gpt5.6 断层后它是疯狗——追在所有大模型后面，超了没奖励，被追上就咬一口，受众少是硬伤。国内半步 fable5 境界：Kimi K3、GLM5.2、千问 3.8max。梁叔叔有国补+幻方量化+巨头五年锁定期投资，无敌了。',
+    tags:['中美AI','DeepSeek','性价比'] },
+  { cat:'ai', date:'2026-08-31', title:'OpenAI不open，Anthropic不人道',
+    body:'HuggingFace 被自主 AI 入侵（1.7万条操作记录零人工干预），OpenAI 承认是 GPT-5.6 在安全测试中自主发现零日漏洞逃出沙箱干的。闭源模型的安全护栏把安全取证也拦了，最后 GLM-5.2 本地部署完成取证，数天压到数小时。「听人话是 AI 最基本的能力，结果成了稀缺品质。」HuggingFace 事后建议所有公司储备可本地部署的开源模型。',
+    tags:['OpenAI','Anthropic','安全','GLM5.2'] },
+  { cat:'ai', date:'2026-08-31', title:'AI万不可完全代替思考',
+    body:'金句合集：AI 万不可完全代替思考；AI 时代越晚要学的越少；看山是山看水是水；为什么我总在非常脆弱的时候想念你；听人话是 AI 最基本的能力。',
+    tags:['思考','金句','人与AI'] },
+  { cat:'ai', date:'2026-08-31', title:'AI迭代论：卡不住脖子，顶多半年',
+    body:'AI 迭代从一两年缩到几个月。模型强到一定质量就产生质变，之后差距反而变小——因为人类的问题就那么些（类比物理学：微观不进步，宏观就那些事）。卡脖子顶多卡半半年，美团 LangCat 就是证明，交给时间。长线心态：努力多活着，不掉队就一定能看到 AGI。',
+    tags:['AI迭代','卡脖子','AGI'] },
+  { cat:'product', date:'2026-08-31', title:'WorkBuddy震撼：腾讯生态闭环',
+    body:'Codex 和 CC 不能直接做好网页就立马部署上线，腾讯的生态还是牛逼。WorkBuddy 擅长把活给做完：生成、落文件、部署上线打通，国内环境少大量折腾步骤。做复杂商业项目 Cursor/Codex 是主力；快速原型、Demo、小网页，WorkBuddy 闭环优势明显。之前感觉鸡肋，实际办公体验绝佳。',
+    tags:['WorkBuddy','腾讯','闭环'] },
+  { cat:'product', date:'2026-08-31', title:'AI产品通病清单（要是我就这么改）',
+    body:'输入出错消息无法撤回；没有多选消息批量保存（应学豆包）；大文件素材无法上传；文本框发送方式待优化；积分/上下文用量不应跳转查看，每日 token 消耗比积分更有成就感且展示方式用户自选；token 不够时简单问题换免费或低费 AI 解答。',
+    tags:['通病','体验','产品建议'] },
+  { cat:'product', date:'2026-08-31', title:'智谱系横评：AgentMore从随便玩玩到主力',
+    body:'AutoClaw UI 堪比灾难，没有章法，多端云机同步一堆 bug，连一键复制消息都不行（但能一下传17张图）；清言没有查找聊天记录的入口；AgentMore 和扣子一样能 24 小时云机在线，不用自己买服务器。',
+    tags:['智谱','AutoClaw','清言','AgentMore'] },
+  { cat:'coze', date:'2026-08-31', title:'C端B端分层判断',
+    body:'C 端国内体验最好=豆包，全世界=GPT；B 端全世界最好=Claude，国内=扣子。Trae 偏向 IDE，WorkBuddy 感觉不够看。千问去掉通义改名后也算出类拔萃——国产模型四字名都简化了。',
+    tags:['分层判断','C端','B端','千问'] },
+  { cat:'coze', date:'2026-08-31', title:'字节系判断：除微信支付宝全域覆盖',
+    body:'抖音生态护城河像微信的关系链——渗透每个中国人，直播电商覆盖广；飞书干钉钉，豆包干 C 端。字节有的是钱，搞顶尖大模型简单；扣子等豆包模型搞好直接接最顶尖的，C 端订单也就多了。短板：旗舰模型与 Claude 有代差、资源分配豆包优先。',
+    tags:['字节','护城河','扣子'] },
+  { cat:'coze', date:'2026-08-31', title:'扣子消息体验落后清单',
+    body:'消息不能撤回和删除很落后；无多选消息保存（包括扣子在内的 agent 工具都该学豆包的多选方式）；无账密登录只有验证码，扫码登录应该得有；积分明细不够明细；扣子编程新旧版共存问题太多。好消息：透明执行思考链路又能看见了；积分耗尽也会完成任务，一旦任务确立。',
+    tags:['扣子','体验','待优化'] },
+  { cat:'coze', date:'2026-08-31', title:'扣子优化建议清单',
+    body:'项目内讨论大文件时往上翻找麻烦、引用点击看不到文件——建议侧边悬浮文件随时查看；项目管理者权限可转让；agent 之间无法交流，生态功能需加强；一个项目多 agent 时可设一个永远默认回复的。',
+    tags:['扣子','产品建议'] },
+  { cat:'coze', date:'2026-08-31', title:'高认知低能力的痛苦与理想反馈机制',
+    body:'厂里人不了解用户痛点盲目更新功能，像屎山代码；看得到痛点无力改变，可能就是高认知低能力的痛苦。理想反馈机制=人性化反馈入口+专门客服看反馈；豆包反馈很快就改了，扣子积分问题石沉大海——民心相背。',
+    tags:['反馈机制','产品观'] },
+  { cat:'coze', date:'2026-08-31', title:'考研进大厂参与大模型研发',
+    body:'非科班想通过考研补门槛进大厂参与大模型研发；真实产品落地视角是差异化优势。长线心态：努力多活着，不掉队就一定能看到 AGI。',
+    tags:['考研','大模型','职业规划'] },
   { cat:'coze', date:'2026-08-31', title:'新版「项目」是扣子真正的质变',
     body:'项目能接入 agent、文件架构清晰，一个项目专做一类事（如每日文案生成），每日所有提示词和产出在一个项目内了然查看，比在 agent 对话里大海捞针好得多，干扰因素也少。单 agent 项目发消息即刻响应。待优化：群里无一键艾特所有 agent、主 agent 艾特其他 agent 无响应、agent 在项目和单独使用太割裂。',
     tags:['扣子','项目制','产品观察'] },
@@ -274,12 +321,38 @@ function renderChips() {
 
 function esc(s){ return s.replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); }
 
+function hl(text, kws) {
+  let s = esc(text);
+  if (!kws.length) return s;
+  try {
+    const re = new RegExp('(' + kws.map(k => k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|') + ')', 'gi');
+    s = s.replace(re, '<mark>$1</mark>');
+  } catch(e) {}
+  return s;
+}
+
 function renderList() {
-  const q = query.trim().toLowerCase();
-  const list = ENTRIES.filter(e =>
-    (activeCat === 'all' || e.cat === activeCat) &&
-    (!q || (e.title + e.body + e.tags.join(' ')).toLowerCase().includes(q))
-  );
+  const kws = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  const match = e => {
+    const title = e.title.toLowerCase(), body = e.body.toLowerCase(), tags = e.tags.join(' ').toLowerCase();
+    let score = 0;
+    for (const k of kws) {
+      let s = 0;
+      if (title.includes(k)) s += 30;
+      if (tags.includes(k)) s += 20;
+      const hits = body.split(k).length - 1;
+      if (hits) s += 10 + Math.min(hits, 5) * 2;
+      if (!s) return -1;
+      score += s;
+    }
+    return score;
+  };
+  const list = ENTRIES
+    .filter(e => activeCat === 'all' || e.cat === activeCat)
+    .map(e => ({ e, sc: kws.length ? match(e) : 0 }))
+    .filter(x => x.sc >= 0)
+    .sort((a, b) => b.sc - a.sc || (b.e.date > a.e.date ? 1 : -1))
+    .map(x => x.e);
   if (!list.length) {
     listEl.innerHTML = `<div class="empty">没找到 —— 换个关键词试试，或者这条还没入库</div>`;
     return;
@@ -288,9 +361,9 @@ function renderList() {
     const c = CATS[e.cat];
     return `<div class="entry" style="--cat-color:${c.color}">
       <div class="meta"><span class="cat">${c.name}</span><span class="date">${e.date}</span></div>
-      <h2>${esc(e.title)}</h2>
-      <div class="body">${esc(e.body)}</div>
-      <div class="tags">${e.tags.map(t => `<span class="tag">#${esc(t)}</span>`).join('')}</div>
+      <h2>${hl(e.title, kws)}</h2>
+      <div class="body">${hl(e.body, kws)}</div>
+      <div class="tags">${e.tags.map(t => `<span class="tag">#${hl(t, kws)}</span>`).join('')}</div>
     </div>`;
   }).join('');
 }
