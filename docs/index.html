@@ -114,6 +114,27 @@
   .entry .tag { font-size:.72rem; color:var(--dim); background:rgba(255,255,255,.05); padding:2px 9px; border-radius:5px; }
   .entry mark { background:rgba(59,130,246,.38); color:#dbeafe; border-radius:3px; padding:0 2px; }
   .entry .body b { color:var(--text); }
+  .entry.flash { outline:2px solid #3b82f6; box-shadow:0 0 24px rgba(59,130,246,.35); }
+
+  .viewtoggle { display:flex; gap:8px; margin:0 0 18px; }
+  .vt { font:inherit; font-size:.85rem; font-weight:600; color:var(--dim); background:var(--card); border:1px solid var(--border); border-radius:9px; padding:8px 16px; cursor:pointer; transition:.15s; }
+  .vt.active { color:var(--text); background:rgba(59,130,246,.18); border-color:rgba(59,130,246,.45); }
+
+  body.brain-on #chips, body.brain-on #list, body.brain-on .searchbox { display:none; }
+  #brainView { display:none; position:relative; }
+  body.brain-on #brainView { display:block; }
+  #brainCanvas { width:100%; border:1px solid var(--border); border-radius:16px; background:rgba(255,255,255,.03); touch-action:none; }
+  .brainhint { text-align:center; color:var(--dim); font-size:.78rem; margin-top:10px; }
+  .bcard { position:absolute; top:14px; right:14px; width:min(320px, 78%); max-height:82%; overflow:auto; background:#10141d; border:1px solid rgba(59,130,246,.4); border-radius:14px; padding:16px; box-shadow:0 12px 40px rgba(0,0,0,.5); }
+  .bcard h3 { font-size:1rem; margin:8px 0; }
+  .bcard .body { color:#b8bfce; font-size:.85rem; white-space:pre-line; }
+  .bcard .meta { display:flex; gap:8px; align-items:center; }
+  .bcard .cat { font-size:.72rem; font-weight:700; padding:2px 9px; border-radius:5px; }
+  .bcard .date { font-size:.75rem; color:var(--dim); }
+  .bcard .tags { margin-top:10px; display:flex; gap:6px; flex-wrap:wrap; }
+  .bcard .tag { font-size:.7rem; color:var(--dim); background:rgba(255,255,255,.05); padding:2px 9px; border-radius:5px; }
+  .bb { font:inherit; font-size:.8rem; font-weight:600; color:#dbeafe; background:rgba(59,130,246,.25); border:1px solid rgba(59,130,246,.5); border-radius:8px; padding:6px 12px; cursor:pointer; }
+  .bb.ghost { color:var(--dim); background:transparent; border-color:var(--border); }
 
   .empty {
     text-align:center; color:var(--dim); padding:60px 0; font-size:.92rem;
@@ -154,8 +175,19 @@
     <input id="q" type="search" placeholder="搜索标题、内容或标签…" autocomplete="off">
   </div>
 
+  <div class="viewtoggle">
+    <button id="vList" class="vt active">📋 列表</button>
+    <button id="vBrain" class="vt">🧠 大脑</button>
+  </div>
+
   <div class="chips" id="chips"></div>
   <div class="entries" id="list"></div>
+
+  <div id="brainView">
+    <canvas id="brainCanvas"></canvas>
+    <div class="brainhint">节点=条目 · 连线=共享标签 · 拖拽移动 · 点击节点查看</div>
+    <div id="brainCard" class="bcard" style="display:none"></div>
+  </div>
 
   <footer>
     数据即资产 · 由 <a href="https://github.com/CHristianREEVEE/knowledge-base" target="_blank" rel="noopener">GitHub 仓库</a>驱动 · Zero 管理 · 条目与 markdown 实时同步
@@ -359,7 +391,7 @@ function renderList() {
   }
   listEl.innerHTML = list.map(e => {
     const c = CATS[e.cat];
-    return `<div class="entry" style="--cat-color:${c.color}">
+    return `<div class="entry" data-i="${ENTRIES.indexOf(e)}" style="--cat-color:${c.color}">
       <div class="meta"><span class="cat">${c.name}</span><span class="date">${e.date}</span></div>
       <h2>${hl(e.title, kws)}</h2>
       <div class="body">${hl(e.body, kws)}</div>
@@ -369,6 +401,170 @@ function renderList() {
 }
 
 qEl.addEventListener('input', () => { query = qEl.value; renderList(); });
+
+/* ================= 大脑视图 ================= */
+const brainView = document.getElementById('brainView');
+const canvas = document.getElementById('brainCanvas');
+const bctx = canvas.getContext('2d');
+const card = document.getElementById('brainCard');
+let brainOn = false, graphBuilt = false;
+let nodes = [], edges = [], W = 0, H = 0, alpha = 1;
+let hovered = -1, dragIdx = -1, downX = 0, downY = 0, moved = 0;
+
+function buildGraph() {
+  nodes = ENTRIES.map((e, i) => ({ i, cat: e.cat, title: e.title,
+    tags: e.tags.map(t => t.toLowerCase()), x: 0, y: 0, vx: 0, vy: 0, deg: 0 }));
+  const cats = Object.keys(CATS);
+  nodes.forEach(n => {
+    const ang = cats.indexOf(n.cat) / cats.length * Math.PI * 2;
+    const rad = Math.min(W, H) * 0.28;
+    n.x = W/2 + Math.cos(ang)*rad + (Math.random()-.5)*50;
+    n.y = H/2 + Math.sin(ang)*rad + (Math.random()-.5)*50;
+  });
+  edges = [];
+  for (let a = 0; a < nodes.length; a++) for (let b = a+1; b < nodes.length; b++) {
+    const sh = nodes[a].tags.filter(t => nodes[b].tags.includes(t)).length;
+    if (sh) edges.push({ a, b, w: sh });
+  }
+  nodes.forEach(n => n.deg = 0);
+  edges.forEach(e => { nodes[e.a].deg += e.w; nodes[e.b].deg += e.w; });
+}
+
+function resizeBrain() {
+  const DPR = window.devicePixelRatio || 1;
+  W = brainView.clientWidth || 600;
+  H = Math.max(420, Math.min(640, window.innerHeight * 0.62));
+  canvas.width = W * DPR; canvas.height = H * DPR;
+  canvas.style.height = H + 'px';
+  bctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  nodes.forEach(n => { n.x = Math.max(24, Math.min(W-24, n.x)); n.y = Math.max(24, Math.min(H-24, n.y)); });
+}
+
+function step() {
+  if (alpha < 0.004 || dragIdx >= 0) { if (dragIdx < 0) return; }
+  for (let i = 0; i < nodes.length; i++) for (let j = i+1; j < nodes.length; j++) {
+    const a = nodes[i], b = nodes[j];
+    let dx = a.x-b.x, dy = a.y-b.y, d2 = dx*dx + dy*dy || 1;
+    const d = Math.sqrt(d2), f = 2400/d2;
+    dx /= d; dy /= d;
+    a.vx += dx*f; a.vy += dy*f; b.vx -= dx*f; b.vy -= dy*f;
+  }
+  edges.forEach(e => {
+    const a = nodes[e.a], b = nodes[e.b];
+    let dx = b.x-a.x, dy = b.y-a.y;
+    const d = Math.sqrt(dx*dx + dy*dy) || 1, f = (d-110)*0.008*Math.min(e.w, 3);
+    a.vx += dx/d*f; a.vy += dy/d*f; b.vx -= dx/d*f; b.vy -= dy/d*f;
+  });
+  nodes.forEach(n => {
+    n.vx += (W/2-n.x)*0.003; n.vy += (H/2-n.y)*0.003;
+    if (n.i === dragIdx) { n.vx = 0; n.vy = 0; return; }
+    n.vx *= 0.85; n.vy *= 0.85;
+    n.x = Math.max(24, Math.min(W-24, n.x + n.vx));
+    n.y = Math.max(24, Math.min(H-24, n.y + n.vy));
+  });
+  alpha *= 0.996;
+}
+
+function draw() {
+  bctx.clearRect(0, 0, W, H);
+  edges.forEach(e => {
+    const a = nodes[e.a], b = nodes[e.b];
+    const hlE = hovered === e.a || hovered === e.b;
+    bctx.strokeStyle = hlE ? 'rgba(147,197,253,.9)' : 'rgba(148,163,184,.2)';
+    bctx.lineWidth = hlE ? 1.8 : Math.min(1 + e.w*0.4, 2.2);
+    bctx.beginPath(); bctx.moveTo(a.x, a.y); bctx.lineTo(b.x, b.y); bctx.stroke();
+  });
+  nodes.forEach((n, i) => {
+    const r = 5 + Math.min(n.deg*0.9, 8), c = CATS[n.cat].color;
+    if (i === hovered) { bctx.beginPath(); bctx.arc(n.x, n.y, r+6, 0, 7); bctx.fillStyle = c+'44'; bctx.fill(); }
+    bctx.beginPath(); bctx.arc(n.x, n.y, r, 0, 7);
+    bctx.fillStyle = c; bctx.fill();
+    bctx.strokeStyle = 'rgba(10,13,20,.9)'; bctx.lineWidth = 1.5; bctx.stroke();
+    if (i === hovered || r > 10) {
+      bctx.fillStyle = '#e8ecf4'; bctx.font = '11px system-ui'; bctx.textAlign = 'center';
+      bctx.fillText(n.title.length > 14 ? n.title.slice(0,13)+'…' : n.title, n.x, n.y-r-6);
+    }
+  });
+}
+
+function tick() {
+  if (!brainOn) return;
+  step(); draw();
+  requestAnimationFrame(tick);
+}
+
+function pos(ev) {
+  const r = canvas.getBoundingClientRect();
+  return { x: ev.clientX - r.left, y: ev.clientY - r.top };
+}
+function hit(x, y) {
+  for (let i = nodes.length-1; i >= 0; i--) {
+    const n = nodes[i], r = 5 + Math.min(n.deg*0.9, 8) + 6;
+    if ((x-n.x)**2 + (y-n.y)**2 <= r*r) return i;
+  }
+  return -1;
+}
+
+function showCard(i) {
+  const e = ENTRIES[i], c = CATS[e.cat];
+  card.innerHTML = `<div class="meta"><span class="cat" style="background:${c.color}22;color:${c.color}">${c.name}</span><span class="date">${e.date}</span></div>
+    <h3>${esc(e.title)}</h3><div class="body">${esc(e.body)}</div>
+    <div class="tags">${e.tags.map(t => `<span class="tag">#${esc(t)}</span>`).join('')}</div>
+    <div style="margin-top:12px;display:flex;gap:8px">
+      <button class="bb" id="bcGo">在列表中查看</button>
+      <button class="bb ghost" id="bcClose">关闭</button>
+    </div>`;
+  card.style.display = 'block';
+  document.getElementById('bcGo').onclick = () => {
+    card.style.display = 'none'; setView(false);
+    activeCat = 'all'; query = ''; qEl.value = '';
+    renderChips(); renderList();
+    setTimeout(() => {
+      const el = listEl.querySelector(`[data-i="${i}"]`);
+      if (el) { el.scrollIntoView({ behavior:'smooth', block:'center' }); el.classList.add('flash');
+        setTimeout(() => el.classList.remove('flash'), 1800); }
+    }, 60);
+  };
+  document.getElementById('bcClose').onclick = () => card.style.display = 'none';
+}
+
+canvas.addEventListener('pointerdown', ev => {
+  const p = pos(ev);
+  downX = p.x; downY = p.y; moved = 0;
+  dragIdx = hit(p.x, p.y);
+  if (dragIdx >= 0) { alpha = 0.6; canvas.setPointerCapture(ev.pointerId); }
+});
+canvas.addEventListener('pointermove', ev => {
+  const p = pos(ev);
+  if (dragIdx >= 0) {
+    moved += Math.abs(p.x-downX) + Math.abs(p.y-downY);
+    const n = nodes[dragIdx]; n.x = p.x; n.y = p.y; downX = p.x; downY = p.y;
+  } else {
+    hovered = hit(p.x, p.y);
+    canvas.style.cursor = hovered >= 0 ? 'pointer' : 'default';
+  }
+});
+canvas.addEventListener('pointerup', () => {
+  if (dragIdx >= 0 && moved < 8) showCard(dragIdx);
+  dragIdx = -1; alpha = 0.5;
+});
+
+function setView(brain) {
+  brainOn = brain;
+  document.body.classList.toggle('brain-on', brain);
+  document.getElementById('vList').classList.toggle('active', !brain);
+  document.getElementById('vBrain').classList.toggle('active', brain);
+  if (brain) {
+    card.style.display = 'none';
+    resizeBrain();
+    if (!graphBuilt) { buildGraph(); graphBuilt = true; }
+    alpha = 1;
+    requestAnimationFrame(tick);
+  }
+}
+document.getElementById('vList').addEventListener('click', () => setView(false));
+document.getElementById('vBrain').addEventListener('click', () => setView(true));
+window.addEventListener('resize', () => { if (brainOn) resizeBrain(); });
 
 document.getElementById('stEntries').textContent = ENTRIES.length;
 document.getElementById('stCats').textContent = Object.keys(CATS).filter(k => countBy(k) > 0).length;
