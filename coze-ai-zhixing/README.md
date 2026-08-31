@@ -27,6 +27,7 @@
 | [doubao-dialogues-2.md](doubao-dialogues-2.md) | 豆包对话实录 · 批次二（23 段） |
 | [doubao-dialogues-3.md](doubao-dialogues-3.md) | 豆包对话实录 · 批次三（3 段） |
 | [ai-journey.md](ai-journey.md) | 我的 AI 之路：22 年 GPT 镜像至今的完整使用史 |
+| [brain.md](brain.md) | 🧠 思维链条（第二大脑）：六条思考脉络，[[双链]]互连 |
 | [../purpose.md](../purpose.md) | 创建新概念知识库初衷（置顶板块） |
 
 > 内容总跨度：2026 年 7 月初 – 8 月底的 AI 见闻、日志与思考。
