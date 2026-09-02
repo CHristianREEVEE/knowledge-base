@@ -203,16 +203,16 @@
 </div>
 
 <script>
+window.__isMobile = matchMedia('(pointer:coarse)').matches || innerWidth < 900;
 window.addEventListener('error', function(e){
   try{
     var b=document.getElementById('errBar');
     if(!b){b=document.createElement('div');b.id='errBar';
       b.style.cssText='position:fixed;bottom:0;left:0;right:0;z-index:99999;background:#dc2626;color:#fff;font-size:11px;line-height:1.4;padding:6px 10px;max-height:90px;overflow:auto;word-break:break-all';
       (document.body||document.documentElement).appendChild(b);}
-    b.textContent='⚠ '+e.message+' @L'+e.lineno;
+    b.textContent='\u26a0 '+(e.message||'script error')+' @L'+e.lineno;
   }catch(_){}
 });
-</script>
 const CATS = {
   purpose: { name:'创建初衷',    color:'#e879f9' },
   ai:      { name:'AI 看法',    color:'#6366f1' },
@@ -493,7 +493,7 @@ function buildGraph() {
 }
 
 function resizeBrain() {
-  const DPR = window.devicePixelRatio || 1;
+  const DPR = Math.min(window.devicePixelRatio || 1, 2);
   W = brainView.clientWidth || 600;
   H = Math.max(420, Math.min(640, window.innerHeight * 0.62));
   canvas.width = W * DPR; canvas.height = H * DPR;
@@ -605,6 +605,8 @@ canvas.addEventListener('pointermove', ev => {
     hovered = hit(p.x, p.y);
     canvas.style.cursor = hovered >= 0 ? 'pointer' : 'default';
   }
+
+  if(window.__isMobile) draw();
 });
 canvas.addEventListener('pointerup', () => {
   if (dragIdx >= 0 && moved < 8) showCard(dragIdx);
@@ -621,7 +623,12 @@ function setView(brain) {
     resizeBrain();
     if (!graphBuilt) { buildGraph(); graphBuilt = true; }
     alpha = 1;
-    requestAnimationFrame(tick);
+    if (window.__isMobile) {
+      for (var k=0;k<400 && alpha>0.015;k++) step();
+      draw();
+    } else {
+      requestAnimationFrame(tick);
+    }
   }
 }
 document.getElementById('vList').addEventListener('click', () => setView(false));
