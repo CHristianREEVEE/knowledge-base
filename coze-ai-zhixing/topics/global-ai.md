@@ -29,3 +29,11 @@
 - 中美互相抄：你抄抄我的我抄抄你的，美国领先中国大概一两个季度，没有一个是真全靠自己不借鉴同行的，无非是借鉴多少和嘴硬不硬
 - AI 领域很难卡住脖子，顶多卡半半年（详见 philosophy.md 卡脖子论）
 **#中美AI #互抄论**
+
+## 2026-09-08 | GrokBot 上海 Meetup：常驻 agent 开始办线下
+
+- xAI 与 Cursor 8 月 11 日推出的常驻 agent（GrokBot）：自有电脑、登账号干活、24/7 在线——不同于云端 agent 的本地常驻形态
+- 上海 Meetup 现场申请：agent-world 多 agent 真实录+可 live demo 观测台，分享弹药充足
+- 同周出现豆包付费内测+ZCode Talent——国内外 agent 厂商都在抢真实用户场景，线下社区是下一个战场
+
+**#GrokBot #xAI #常驻agent #线下社区**
