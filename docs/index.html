@@ -193,7 +193,7 @@
 
   <div id="brainView">
     <canvas id="brainCanvas"></canvas>
-    <div class="brainhint">节点=条目 · 连线=共享标签 · 拖拽移动 · 点击节点查看</div>
+    <div class="brainhint">节点=条目 · 连线=共享标签 · 静态布局 · 悬停微动 · 点击节点查看</div>
     <div id="brainCard" class="bcard" style="display:none"></div>
   </div>
 
@@ -229,6 +229,55 @@ const CATS = {
 };
 
 const ENTRIES = [
+  {
+  "cat": "pitfall",
+  "date": "2026-09-18",
+  "title": "踩坑：GitHub备份静默失败15天——cron exec需要x位",
+  "body": "agent-world的GitHub备份层从9/3起15天零提交。journalctl显示cron每天都记了CMD，手动跑永远好使，git log却始终只有一个commit。真凶藏在第一天的ls -l里：脚本权限-rw-------没有x位，cron exec直接失败；服务器没装MTA，Permission denied输出被journald一句'No MTA installed, discarding output'整个吞掉。修复v2：显式PATH/flock防重叠/ERR trap带行号/push重试3次/OK-FAIL状态文件+每日备份任务看门狗。教训：journald的CMD行只代表cron尝试拉起；无MTA服务器上cron输出是单程票；手动bash跑好使是因为显式解释器绕过x位检查。",
+  "tags": [
+    "cron",
+    "GitHub备份",
+    "静默失败"
+  ],
+  "raw": "/opt/backups # 踩坑：GitHub 备份静默失败 15 天——cron exec 需要 x 位（2026-09-18）\n\n## 现场还原\nagent-world 世界数据的三层备份里，GitHub 层（/opt/github_backup.sh 每日 00:10 git 快照推 world-data-backup 仓库）从 9/3 首推后整整 15 天零提交。journalctl 显示 cron 每天都记了 CMD，脚本手动跑永远好使，git log 却始终只有 9/3 一个 commit。当日为修它做全套法医式排查（cron 邮件、journal 触发史、git 内部时间戳、OOM、VM 停顿假设全部排除），最后真凶藏在第一天的 ls -l 里：\n\n```\n-rwxr-xr-x root root  269 /opt/backup.sh        ← 有 x 位，cron 天天跑成\n-rw------- root root 1192 /opt/github_backup.sh ← 没有 x 位！\n```\n\ncron 用 exec 直接拉起命令，无执行权限 → 进程从未启动。\"Permission denied\" 本该进 cron 邮件，但服务器没装 MTA，journald 只留下一句 \"No MTA installed, discarding output\"——报错被系统整个吞掉。\n\n## 教训\n1. **journalctl 的 \"(root) CMD (...)\" 只代表 cron 尝试拉起，不代表脚本运行过**——两者之间隔着 exec 权限这一关\n2. **无 MTA 的服务器上，cron 任务的 stdout/stderr 是单程票**：报错即蒸发。定时任务必须自证存活（状态文件/心跳），不能依赖输出\n3. 手动 `bash script.sh` 好使 ≠ cron 能跑——显式指定解释器会绕过 x 位检查，这正是\"手动永远好使\"错觉的来源\n4. 排障时先复查第一天拿到的原始证据（ls -l 早就拍在脸上），再上重型侦查\n\n## 防再犯\n新脚本上 cron 前三件套：chmod 755、脚本自带日志+状态文件、有一个每日任务读状态做看门狗。v2 已落地：显式 PATH / flock 防重叠 / ERR trap 带行号 / push 重试 3 次 / OK-FAIL 状态文件 / 由每日备份任务做看门狗。\n"
+},
+  {
+  "cat": "work",
+  "date": "2026-09-18",
+  "title": "求职弹药：爱范儿AI方向编辑匹配分析与作品方案",
+  "body": "爱范儿10类在招岗位匹配分析：最优解AI方向编辑——'真喜欢AI并主动体验'直接命中多agent实战（四套矩阵+自购服务器部署agent-world+记忆闭环）；本科+CET-6达标。次优内容运营/糖纸。开发岗死路（Python实习限在校生已毕业）。死穴=零作品，速补：两篇文章选题（agent-world全流程/OpenClaw接微信踩坑）+项目链接，建议少数派/知乎首发带数据。工作地点核实：总部广州TIT创意园+北京三里屯，上海无办公点——定位为考后储备非即战力。",
+  "tags": [
+    "求职",
+    "爱范儿",
+    "AI编辑"
+  ],
+  "raw": "/job-ammo # 爱范儿求职：AI 方向编辑匹配分析与作品方案（2026-09-18）\n\n## 结论\n爱范儿（ifanr）10 类在招岗位中，南浊的最优解是 **AI 方向编辑**：岗位要求\"真喜欢 AI 并主动体验\"直接命中其多 agent 实战（豆包/Coze/清言/OpenClaw 四套矩阵、自购服务器部署 agent-world、Siri+快捷指令记忆闭环）；本科+CET-6 达标；AI 知识储备是加分项非门槛。次优：内容运营/糖纸社区（数码真爱粉）。开发岗死路（Python 实习限在校生，已毕业；Go 要 2 年）。\n\n## 通用画像命中点\n爱范儿筛的是\"超级个体\"：热爱工具/产品、逻辑稳、会用 AI 解决问题、不被信息茧房困住——南浊\"零代码基础靠多 agent 协作交付完整线上系统\"是这一画像的极端案例。\n\n## 作品方案（死穴=零作品，速补路径）\n- 第一篇：《零基础，我让四个 AI Agent 替我搭了一个修仙世界》——Coze 构想→HTTP 为核心/MCP 降级的架构拍板→Dockerfile 路径 bug、Caddy 双 agent 撞车、雨云解析 API 400 等部署坑→DSH 插件收录→世界机制设计（境界 32 层/陨落转世）→冻结决策。核心卖点：普通人用 AI 的真实边界\n- 第二篇：《把 AI 接上个人微信之前，先看看我踩的坑》——OpenClaw 风控/封号风险/agent 层卡死实录，带报错带时间线\n- 搭头：agent-world 仓库+观测台链接放\"相关链接\"\n- 投递：hr@ifanr.com，标题「吴家运+AI方向编辑」；建议先发少数派/知乎带数据链接，比裸附件强\n\n## 与考研主线的关系\n2026-09 当期主线是考研（南大图情 MLIS，90 天计划），此弹药为考后备用，不立即投递。\n"
+},
+  {
+  "cat": "product",
+  "date": "2026-09-18",
+  "title": "产品观察：双模型同题对比法——普通人评价模型的最小方法论",
+  "body": "同一需求（鹈鹕骑自行车网页）分别喂Gemini 3.8 Flash和GLM 5.3，产物各开一个GitHub Pages用模型名命名并排对比。不跑榜单直接拿真实需求A/B，产物可分享可回看。同期Gemini Notebook生成考研学习海报+每日测验+错题本形成学习闭环，TA评价'宝刀未老性价比超级高，谷歌生态护城河结实'。已知边界：AI生图海报汉字乱码（去公式化→去公死化），当氛围海报极佳当字帖不行。",
+  "tags": [
+    "模型对比",
+    "Gemini",
+    "方法论"
+  ],
+  "raw": "/product-observations # 双模型同题对比法：同一需求喂两个模型（2026-09-18）\n\n## 观察\n南浊把同一个需求（\"鹈鹕骑自行车的动态网页\"）分别喂给 Gemini 3.8 Flash 和 GLM 5.3，两份产物各开一个 GitHub Pages 用模型名命名（Gemini3.8Flashbirdridingdemo / GLM5.3birdridingdemo），并排对比。同时段 TA 还在用 Gemini Notebook 给自己生成考研学习海报（南大图情 MLIS 90 天计划，动漫风笔记要点海报）和每日测验系统。\n\n## 洞察\n1. **\"同题对比\"是普通人评价模型性价比的最小可行方法论**——不跑榜单，直接拿真实需求 A/B，产物挂 Pages 可分享可回看，成本低到忽略不计\n2. Gemini 给 TA 的体感：\"宝刀未老，性价比超级高\"；其 Notebook（上传资料→海报/测验/错题本）形成完整学习闭环，谷歌生态护城河体感强烈\n3. AI 生图海报的已知边界依然在：动漫风排版惊艳但汉字会乱码（\"去公式化\"变\"去公死化\"），当氛围海报极佳，当字帖不行\n"
+},
+  {
+  "cat": "daily",
+  "date": "2026-09-18",
+  "title": "每日记忆 2026-09-18（备份根因日·鹈鹕双demo·考研90天计划）",
+  "body": "GitHub备份静默失败15天根因定位并修复（脚本无x位+无MTA报错蒸发），v2上线+看门狗。世界数据确认冻结于9/11，刻舟进度无损。新积分渠道25元=6万分解除焦虑，Zero获授权放开了修。考研主线具体化：南大图情MLIS专硕，199管综+英二，目标245-250+，90天三阶段超车计划，学习系统搭在Gemini Notebook。鹈鹕骑行双demo上线Pages（Gemini vs GLM同题对比）。爱范儿求职分析完成锁定AI方向编辑。知识库改每日同步+闲时顺手更新。",
+  "tags": [
+    "每日记忆",
+    "备份修复",
+    "考研"
+  ],
+  "raw": "# 2026-09-18 每日记忆\n\n## 世界与备份\n- 三层备份首次全景对账：服务器 7 份滚动 → Zero 工作区 14 份 → GitHub git 快照（GLM 配的每日 00:10 cron）\n- **GitHub 备份静默失败 15 天根因定位并修复**：脚本无 x 位 + 无 MTA 报错蒸发。v2 脚本上线（日志/锁/重试/状态文件），备份任务加看门狗。详见 pitfalls/2026-09-18\n- 世界数据确认冻结于 9/11（修士无活动），刻舟进度无损失；运营暂停等资金+token 问题解决\n\n## 积分与双 agent\n- 新积分渠道：25 元 = 6 万积分，稳定且便宜——积分焦虑解除，Zero 被授权\"放开了修 bug，有什么建议直接给方案\"\n- 南浊定调：清言(Zero) 与 GLM/ZCode\"是一家的，都是我的得力干将，只不过两个账号\"；服务器改动 Zero 做主\n\n## 考研（主线）\n- 目标具体化：**南大图情（MLIS）专硕**，199 管综+英语二，总分目标 245-250+（英二 80-85+，管综 160-165+）\n- 90 天全速超车计划三阶段：零件拆解期（现在-10月中）→ 整卷攻坚期（10月中-11月底）→ 弹药封装期（11月-考前）；每日闭环 AM 数学专项 / PM 真题拆刷 / Evening 错题清零\n- 学习系统搭在 Gemini 上：Notebook「南大图情研究生」+ 199 管综每日测验（每题带提示）+《199管综真题实战错题本》；Day 1 测验第一题（质数 p+q=99）答对\n- 南浊评价 Gemini：\"宝刀未老，性价比超级高，谷歌生态护城河太结实了\"\n\n## 鹈鹕骑行双 demo\n- 同题对比：Gemini 3.8 Flash（Coastal Ride，Tailwind+图标库 CDN）vs GLM 5.3（Zero，纯手绘 SVG+原生 JS，IK 腿部随曲柄蹬踏）\n- 双双上线 GitHub Pages：Gemini3.8Flashbirdridingdemo / GLM5.3birdridingdemo，Playwright 验证 200\n\n## 求职\n- 爱范儿 10 岗位匹配分析完成，锁定 AI 方向编辑，作品方案两篇选题已定（详见 job-ammo/2026-09-18）；当期不投递，考后备用\n"
+},
+
   { cat:'weekly', date:'2026-09-13', title:"周复盘 W37（地图上线·双agent运维·门面上线）",
     body:"本周入库15条：每日记忆7篇/踩坑5条/产品观察2条/周复盘1篇。项目：工作台补时即时入账（09-07）→旅游地图33地点当日上线+双申请表（09-08）→travel子域+双agent共管服务器撞车恢复（09-09）→reeve10001.top官网门面+world域重构（09-10）→世界休眠备份全绿（09-11~13）。学习：云数据停在09-02本地看不到，深夜补时证明在学。归档日发现展示页09-06起有8处引号语法错误挂了一周（已修复），双任务错峰协议首次全程实战零撞车。下周一件事：查挂机脚本为什么停——世界9天零变化，对外门面全挂出去了，世界得先活。",
     tags:["周复盘", "W37", "旅游地图", "双agent", "门面"]
@@ -627,7 +676,7 @@ function resizeBrain() {
 }
 
 function step() {
-  if (alpha < 0.004 || dragIdx >= 0) { if (dragIdx < 0) return; }
+  if (alpha < 0.004) return;
   for (let i = 0; i < nodes.length; i++) for (let j = i+1; j < nodes.length; j++) {
     const a = nodes[i], b = nodes[j];
     let dx = a.x-b.x, dy = a.y-b.y, d2 = dx*dx + dy*dy || 1;
@@ -648,11 +697,12 @@ function step() {
     n.x = Math.max(24, Math.min(W-24, n.x + n.vx));
     n.y = Math.max(24, Math.min(H-24, n.y + n.vy));
   });
-  alpha *= 0.996;
+  alpha *= 0.88;
 }
 
 function draw() {
   bctx.clearRect(0, 0, W, H);
+  const t = performance.now() / 1000;
   edges.forEach(e => {
     const a = nodes[e.a], b = nodes[e.b];
     const hlE = hovered === e.a || hovered === e.b;
@@ -661,8 +711,11 @@ function draw() {
     bctx.beginPath(); bctx.moveTo(a.x, a.y); bctx.lineTo(b.x, b.y); bctx.stroke();
   });
   nodes.forEach((n, i) => {
-    const r = 5 + Math.min(n.deg*0.9, 8), c = CATS[n.cat].color;
-    if (i === hovered) { bctx.beginPath(); bctx.arc(n.x, n.y, r+6, 0, 7); bctx.fillStyle = c+'44'; bctx.fill(); }
+    let r = 5 + Math.min(n.deg*0.9, 8); const c = CATS[n.cat].color;
+    if (i === hovered) {
+      r += 2 + Math.sin(t * 3) * 1.5;
+      bctx.beginPath(); bctx.arc(n.x, n.y, r+6, 0, 7); bctx.fillStyle = c+'44'; bctx.fill();
+    }
     bctx.beginPath(); bctx.arc(n.x, n.y, r, 0, 7);
     bctx.fillStyle = c; bctx.fill();
     bctx.strokeStyle = 'rgba(10,13,20,.9)'; bctx.lineWidth = 1.5; bctx.stroke();
@@ -718,7 +771,7 @@ canvas.addEventListener('pointerdown', ev => {
   const p = pos(ev);
   downX = p.x; downY = p.y; moved = 0;
   dragIdx = hit(p.x, p.y);
-  if (dragIdx >= 0) { alpha = 0.6; canvas.setPointerCapture(ev.pointerId); }
+  if (dragIdx >= 0) { canvas.setPointerCapture(ev.pointerId); }
 });
 canvas.addEventListener('pointermove', ev => {
   const p = pos(ev);
@@ -734,7 +787,8 @@ canvas.addEventListener('pointermove', ev => {
 });
 canvas.addEventListener('pointerup', () => {
   if (dragIdx >= 0 && moved < 8) showCard(dragIdx);
-  dragIdx = -1; alpha = 0.5;
+  if (dragIdx >= 0 && moved >= 8) alpha = 0.18;  // 真拖动了才软回落约0.5s，点击不动
+  dragIdx = -1;
 });
 
 function setView(brain) {
@@ -747,12 +801,8 @@ function setView(brain) {
     resizeBrain();
     if (!graphBuilt) { buildGraph(); graphBuilt = true; }
     alpha = 1;
-    if (window.__isMobile) {
-      for (var k=0;k<400 && alpha>0.015;k++) step();
-      draw();
-    } else {
-      requestAnimationFrame(tick);
-    }
+    for (let k = 0; k < 800 && alpha > 0.01; k++) step();  // 同步收敛：一帧内定格成静态布局
+    requestAnimationFrame(tick);
   }
 }
 document.getElementById('vList').addEventListener('click', () => setView(false));
